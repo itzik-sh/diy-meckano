@@ -8,18 +8,24 @@
 # assert opts.headless  # Operating in headless mode
 # browser = Firefox(options=opts)
 # browser.get('https://duckduckgo.com')
-
+import selenium
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 PATH = "C:\Program Files (x86)\chromedriver.exe"
 
-driver = webdriver.Chrome(PATH)
+conf = webdriver.ChromeOptions()
+conf.headless = True -1
+# driver = webdriver.Chrome(ChromeDriverManager().install())
+check_out_indication_ws_full_xpath = '/html/body/div[6]/div/div/div[1]/div[2]/div[2]/div/div[1]/div/div[2]/div[2]/a/div[2]'
+check_out_indication_ws_xpath = '//*[@id="checkout-button"]/div[2]'
+check_out_indication_ws_selector = 'checkout-button > div.textOut'
+check_in_time_ws_xpath = '//*[@id="organizer"]/div[2]/div/div[3]/div/div'
+driver = webdriver.Chrome(PATH, options = conf)
 driver.get("https://app.meckano.co.il/login.php#login")
 print(driver.current_url)
-# login_email_ws_xpath = //*[@id="email"]
-check_in_time_ws_xpath = '//*[@id="organizer"]/div[2]/div/div[3]/div/div'
-# login_email_ws = driver.find_element_by_class_name("email input-text-email")
+time.sleep(3)
+print("\tweb title: ", driver.title)
 login_email_ws = driver.find_element_by_xpath('//*[@id="email"]')
 login_pass_ws = driver.find_element_by_xpath('//*[@id="password"]')
 
@@ -29,11 +35,17 @@ login_pass_ws.send_keys(Keys.RETURN)
 print("going to sleep")
 time.sleep(20)
 print("waking up")
-print(driver.current_url)
-print("getting")
-print(driver.current_url)
-check_in_status_ws = driver.find_element_by_xpath(check_in_time_ws_xpath)
-print(check_in_status_ws)
-print("scrapped")
-info = check_in_status_ws.get_attribute('innerHTML')
-print(info)
+
+
+try:
+    driver.find_element_by_css_selector("input[class='inputCheckInOut replace-to-checkin']")
+    print("you're checked in")
+    check_in_time_ws = driver.find_element_by_xpath('//*[@id="organizer"]/div[2]/div/div[3]/div/div').text
+    print("Clock-in at ",check_in_time_ws[-5:])
+except:
+    try:
+        driver.find_element_by_css_selector("input[class='inputCheckInOut replace-to-checkout']")
+        print("you're checked out")
+    except:
+        print("did not manage to scarp checkin/out status")
+
